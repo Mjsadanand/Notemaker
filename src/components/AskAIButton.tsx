@@ -15,7 +15,7 @@ import { useRouter } from "next/navigation";
 import { Textarea } from "./ui/textarea";
 import { ArrowUpIcon } from "lucide-react";
 import "@/styles/ai-response.css";
-import { askGeminiAboutNotesAction } from "@/actions/notes";
+import { askAIAboutNotesAction } from "@/actions/notes";
 
 type Props = {
   user: User | null;
@@ -68,7 +68,7 @@ function AskAIButton({ user }: Props) {
     setTimeout(scrollToBottom, 100);
 
     startTransition(async () => {
-      const response = await askGeminiAboutNotesAction(newQuestions, responses);
+      const response = await askAIAboutNotesAction(newQuestions, responses);
       setResponses((prev) => [...prev, response]);
 
       setTimeout(scrollToBottom, 100);
