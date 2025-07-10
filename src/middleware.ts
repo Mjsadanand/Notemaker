@@ -1,20 +1,18 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request)
+  return await updateSession(request);
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.\\.(?:svg|png|jpg|jpeg|gif|webp)$).)',
+    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
-}
+};
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  const response = NextResponse.next();
 
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
@@ -22,74 +20,58 @@ export async function updateSession(request: NextRequest) {
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
-          })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+          cookiesToSet.forEach(({ name, value, options }) => {
+            response.cookies.set(name, value, options);
+          });
         },
       },
     }
-  )
+  );
 
   const isAuthRoute =
     request.nextUrl.pathname === "/login" ||
     request.nextUrl.pathname === "/sign-up";
 
-  if (isAuthRoute) {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (user) {
-      return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_BASE_URL));
-    }
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(
+      new URL("/", process.env.NEXT_PUBLIC_BASE_URL!)
+    );
   }
 
-  const { searchParams, pathname } = new URL(request.url)
+  const { searchParams, pathname } = new URL(request.url);
 
-  if (!searchParams.get("noteId") && pathname === "/") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+  if (!searchParams.get("noteId") && pathname === "/" && user) {
+    // Fetch newest note ID
+    const { newestNoteId } = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/fetch-newest-note?userId=${user.id}`
+    ).then((res) => res.json());
 
-    if (user) {
-      // Get newest note directly from Supabase
-      const { data: newestNote } = await supabase
-        .from("Note")
-        .select("id")
-        .eq("authorId", user.id)
-        .order("createdAt", { ascending: false })
-        .limit(1)
-        .single();
+    if (newestNoteId) {
+      const url = request.nextUrl.clone();
+      url.searchParams.set("noteId", newestNoteId);
+      return NextResponse.redirect(url);
+    }
 
-      const newestNoteId = newestNote?.id;
-
-      if (newestNoteId) {
-        const url = request.nextUrl.clone()
-        url.searchParams.set("noteId", newestNoteId)
-        return NextResponse.redirect(url);
-      } else {
-        // Create a new note directly
-        const { data: newNote } = await supabase
-          .from("Note")
-          .insert([{ authorId: user.id, content: "" }])
-          .select("id")
-          .single();
-          
-
-        const noteId = newNote?.id;
-
-        const url = request.nextUrl.clone();
-        url.searchParams.set("noteId", noteId);
-        return NextResponse.redirect(url);
+    // Create new note
+    const { noteId } = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-new-note?userId=${user.id}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
-    }
+    ).then((res) => res.json());
+
+    const url = request.nextUrl.clone();
+    url.searchParams.set("noteId", noteId);
+    return NextResponse.redirect(url);
   }
 
-  return supabaseResponse;
+  return response;
 }
