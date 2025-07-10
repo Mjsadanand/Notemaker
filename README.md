@@ -1,36 +1,67 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Notemaker App
 
-## Getting Started
+## It's a notes maker app with the help of AI you can also analyse your notes 
 
-First, run the development server:
+- [x] Create the next app and installation - pnpm create-next-app@latest notemaker
+- [x] Added the Next theme providers
+- [x] Creating Header using shadcn UI (Button and DarkMode toggler)
+- [x] Creating Signup and Login Pages UI
+- [x] Middleware added
+- [x] Adding basic functionality to the login and signup
+- [x] Sending emails and Confirming them by using SMTP of Supabase
+- [x] Adding the functionality to logout button 
+- [] Prisma SetUp
+- [] Connecting to supabase DB and making interaction with DB
+- [] Adding Core functionality 
+- [] Adding the functionality to logout button 
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## UI Libraries used 
+ 1. Button
+ 2. Card
+ 3. Dropdown Menu
+ 4. Input
+ 5. Label
+ 6. Sonner for toast
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Components used
+  1. Authform - Sign-Up and Login Form and Handle Submit functionality
+    - For the forms used the CardContent, Input and Label UI components  
+  2. DarkModeTogggler
+    - Simple dropdown to toggle between Light dark and System mode
+  3. Header 
+    - Has logo, Signup/Login button and  DarkMode toggle
+  4. LogOutButton - Simple Logout functionality
 
-## Learn More
+  5. App Sidebar 
+    - To add the list of notes.(like chatgpt sidebar)
+  6. Logout button 
+    - To logout (include toasts and loading icons)
+  7. Sidebar Group content 
+    - To include all sidebar contents
+  8. Selected bar menu button
+    - It shows the content of the selected menu or note
+  9. Note Text Input component
+    - It is a textarea that used to take input texts and it update the notes in real time
+  10. New Note button 
+    - It creates the new notes(Prisma) 
+  11. AskAI button
+    -
+  12. DeleteNote Button 
+    - To delete the note (in sidebar)
 
-To learn more about Next.js, take a look at the following resources:
+## Backend Server
+  1. Auth -> server.ts 
+    - Added the functions 
+        - createClient() - To create the user instance
+        - getUser() - To get the user details 
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+  ### Prisma Commands
+  - pnpm add prisma tsx --save-dev
+  - pnpm @prisma/extension-accelerate @prisma/client
+  - npx prisma init --db --output ../app/generated/prisma
+  - npx prisma studio
+  - npx install prisma --save-dev
+  - pnpm migrate  
+  - pnpm migrate  or pnpm dlx prisma generate && pnpm dlx prisma migrate dev
