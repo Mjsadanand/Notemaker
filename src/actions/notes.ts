@@ -7,6 +7,12 @@ import openai from "@/openai";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions"; 
 import { googleGemini } from "@/gemini"; 
 
+type Note = {
+  text: string;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
 export const createNoteAction = async (noteId: string) => {
     try {
         const user = await getUser();
@@ -79,7 +85,7 @@ export const askAIAboutNotesAction = async (
     return "You don't have any notes yet.";
   }
 
-  const formattedNotes = notes
+  const formattedNotes = (notes as Note[])
     .map((note) =>
       `
       Text: ${note.text}
@@ -143,7 +149,7 @@ export const askGeminiAboutNotesAction = async (
     return "You don't have any notes yet.";
   }
 
-  const formattedNotes = notes
+  const formattedNotes = (notes as Note[])
     .map((note) =>
       `
       Text: ${note.text}
