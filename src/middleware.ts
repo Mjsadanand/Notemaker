@@ -12,9 +12,7 @@ export const config = {
 };
 
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  let supabaseResponse = NextResponse.next({ request });
 
   const supabase = createServerClient(
     process.env.SUPABASE_URL!,
@@ -28,42 +26,44 @@ export async function updateSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          supabaseResponse = NextResponse.next({
-            request,
-          });
+          supabaseResponse = NextResponse.next({ request });
           cookiesToSet.forEach(({ name, value, options }) =>
             supabaseResponse.cookies.set(name, value, options),
           );
         },
       },
-    },
+    }
   );
 
-  const isAuthRoute =
-    request.nextUrl.pathname === "/login" ||
-    request.nextUrl.pathname === "/sign-up";
+  const { pathname, searchParams } = new URL(request.url);
+  const isAuthRoute = pathname === "/login" || pathname === "/sign-up";
 
-  if (isAuthRoute) {
+  // Check if a session exists before calling getUser()
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+
+  // If session exists, then fetch the user safely
+  let user = null;
+  if (session) {
     const {
-      data: { user },
+      data: { user: fetchedUser },
     } = await supabase.auth.getUser();
-    if (user) {
-      return NextResponse.redirect(
-        new URL("/", process.env.NEXT_PUBLIC_BASE_URL),
-      );
-    }
+    user = fetchedUser;
   }
 
-  const { searchParams, pathname } = new URL(request.url);
+  // Redirect logged-in users away from auth pages
+  if (isAuthRoute && user) {
+    return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_BASE_URL));
+  }
 
-  if (!searchParams.get("noteId") && pathname === "/") {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
+  // If on home page without a noteId, redirect to newest or create one
+  if (!searchParams.get("noteId") && pathname === "/" && user) {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
 
-    if (user) {
+    try {
       const { newestNoteId } = await fetch(
-        `${process.env.NEXT_PUBLIC_BASE_URL}/api/fetch-newest-note?userId=${user.id}`,
+        `${baseUrl}/api/fetch-newest-note?userId=${user.id}`,
       ).then((res) => res.json());
 
       if (newestNoteId) {
@@ -72,7 +72,7 @@ export async function updateSession(request: NextRequest) {
         return NextResponse.redirect(url);
       } else {
         const { noteId } = await fetch(
-          `${process.env.NEXT_PUBLIC_BASE_URL}/api/create-new-note?userId=${user.id}`,
+          `${baseUrl}/api/create-new-note?userId=${user.id}`,
           {
             method: "POST",
             headers: {
@@ -80,10 +80,13 @@ export async function updateSession(request: NextRequest) {
             },
           },
         ).then((res) => res.json());
+
         const url = request.nextUrl.clone();
         url.searchParams.set("noteId", noteId);
         return NextResponse.redirect(url);
       }
+    } catch (err) {
+      console.error("Middleware note fetch/create failed:", err);
     }
   }
 
