@@ -5,7 +5,6 @@ import { Button } from "./ui/button";
 import { ModeToggle } from "./DarkModeToggle";
 import LogoutButton from "./LogoutButton";
 import { getUser } from "@/auth/server";
-import { SidebarClose } from "lucide-react";
 import { SidebarTrigger } from "./ui/sidebar";
 
 async function Header() {

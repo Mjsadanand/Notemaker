@@ -25,16 +25,16 @@ function AuthForm(type: Props) {
             const password = formdata.get("password") as string;
 
             let errorMessage ;
-            let title;
+            // let title;
             let description
 
             if(isLogin){
                 errorMessage=(await loginAction(email,password)).errorMessage;
-                title = "Logged In";
+                // title = "Logged In";
                 description = "You have successfully logged in";
             }else{
                 errorMessage=(await signUpAction(email,password)).errorMessage;
-                title = "Signed Up";
+                // title = "Signed Up";
                 description = "Check your email to verify your account";
             }
 

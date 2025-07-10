@@ -5,7 +5,6 @@ import { Button } from "./ui/button"
 import { useState } from "react";
 import { toast } from "sonner"
 import { useRouter } from "next/navigation";
-import { log } from "console";
 import { logOutAction } from "@/actions/users";
 
 function LogoutButton() {

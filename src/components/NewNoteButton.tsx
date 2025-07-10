@@ -7,7 +7,6 @@ import { useRouter } from "next/navigation";
 import { v4 as uuid4 } from "uuid";
 import { toast } from "sonner";
 import { createNoteAction } from "@/actions/notes";
-import { resolve } from "path";
 type Props = {
   user: User | null;
 }
