@@ -4,8 +4,8 @@ import { getUser } from "@/auth/server";
 import { prisma } from "@/db/prisma";
 import { handleError } from "@/lib/utils";
 import openai from "@/openai";
-import { ChatCompletionMessageParam } from "openai/resources/chat/completions"; 
-import { googleGemini } from "@/gemini"; 
+import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
+import { googleGemini } from "@/gemini";
 
 type Note = {
   text: string;
@@ -14,58 +14,58 @@ type Note = {
 };
 
 export const createNoteAction = async (noteId: string) => {
-    try {
-        const user = await getUser();
-        if (!user) {
-            throw new Error("User not authenticated");
-        }
-
-        await prisma.note.create({
-            data:{
-                id: noteId,
-                authorId: user.id,
-                text: "",
-            }
-        });
-
-        return { errorMessage: null }
-    } catch (error) {
-        return handleError(error);
+  try {
+    const user = await getUser();
+    if (!user) {
+      throw new Error("User not authenticated");
     }
+
+    await prisma.note.create({
+      data: {
+        id: noteId,
+        authorId: user.id,
+        text: "",
+      }
+    });
+
+    return { errorMessage: null }
+  } catch (error) {
+    return handleError(error);
+  }
 }
 
 export const updateNoteAction = async (noteId: string, text: string) => {
-    try {
-        const user = await getUser();
-        if (!user) {
-            throw new Error("User not authenticated");
-        }
-
-        await prisma.note.update({
-            where: { id: noteId },
-            data: { text },
-        });
-
-        return { errorMessage: null }
-    } catch (error) {
-        return handleError(error);
+  try {
+    const user = await getUser();
+    if (!user) {
+      throw new Error("User not authenticated");
     }
+
+    await prisma.note.update({
+      where: { id: noteId },
+      data: { text },
+    });
+
+    return { errorMessage: null }
+  } catch (error) {
+    return handleError(error);
+  }
 }
 export const deleteNoteAction = async (noteId: string) => {
-    try {
-        const user = await getUser();
-        if (!user) {
-            throw new Error("User not authenticated");
-        }
-
-        await prisma.note.delete({
-            where: { id: noteId , authorId: user.id },
-        });
-
-        return { errorMessage: null }
-    } catch (error) {
-        return handleError(error);
+  try {
+    const user = await getUser();
+    if (!user) {
+      throw new Error("User not authenticated");
     }
+
+    await prisma.note.delete({
+      where: { id: noteId, authorId: user.id },
+    });
+
+    return { errorMessage: null }
+  } catch (error) {
+    return handleError(error);
+  }
 }
 
 export const askAIAboutNotesAction = async (
