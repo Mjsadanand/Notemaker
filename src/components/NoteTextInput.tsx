@@ -2,7 +2,7 @@
 
 import { useSearchParams } from "next/navigation";
 import { Textarea } from "./ui/textarea";
-import { ChangeEvent, use, useEffect } from "react";
+import { ChangeEvent, useEffect } from "react";
 import useNote from "@/hooks/useNote";
 import { updateNoteAction } from "@/actions/notes";
 
