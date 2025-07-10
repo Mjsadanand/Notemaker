@@ -28,12 +28,17 @@ export async function createClient() {
 
 
 export async function getUser() {
-  const {auth} = await createClient();
+  try {
+    const {auth} = await createClient();
 
-  const userObject = await auth.getUser();
-  if(userObject.error){
-    console.error("Error getting user:", userObject.error);
+    const userObject = await auth.getUser();
+    if(userObject.error){
+      console.error("Error getting user:", userObject.error);
+      return null;
+    }
+    return userObject.data.user;
+  } catch (error) {
+    console.error("Error in getUser:", error);
     return null;
   }
-    return userObject.data.user;
 }

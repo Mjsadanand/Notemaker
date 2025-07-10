@@ -15,13 +15,18 @@ async function HomePage({ searchParams }: Props) {
     ? noteIdParam[0]
     : noteIdParam || "";
 
-  const note = await prisma.note.findUnique({
-    where: {
-      id: noteId,
-      authorId: user?.id,
-    },
-  })
-
+  let note = null;
+  try {
+    note = await prisma.note.findUnique({
+      where: {
+        id: noteId,
+        authorId: user?.id,
+      },
+    });
+  } catch (error) {
+    console.error("Error fetching note:", error);
+    // Continue with null note, which will result in empty text input
+  }
 
   return (
     <div className="flex h-full items-center flex-col gap-4">

@@ -57,6 +57,11 @@ export async function updateSession(request: NextRequest) {
     return NextResponse.redirect(new URL("/", process.env.NEXT_PUBLIC_BASE_URL));
   }
 
+  // Redirect non-authenticated users to login page (except for auth routes)
+  if (!user && !isAuthRoute) {
+    return NextResponse.redirect(new URL("/login", process.env.NEXT_PUBLIC_BASE_URL));
+  }
+
   // If on home page without a noteId, redirect to newest or create one
   if (!searchParams.get("noteId") && pathname === "/" && user) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
@@ -87,6 +92,8 @@ export async function updateSession(request: NextRequest) {
       }
     } catch (err) {
       console.error("Middleware note fetch/create failed:", err);
+      // If API calls fail, still allow the request to continue
+      // This prevents infinite redirects if the database is down
     }
   }
 
