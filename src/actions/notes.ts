@@ -8,11 +8,6 @@ import axios from "axios";
 import { ChatCompletionMessageParam } from "openai/resources/chat/completions";
 // import { googleGemini } from "@/gemini";
 
-type Note = {
-  text: string;
-  createdAt: Date;
-  updatedAt: Date;
-};
 
 const AZURE_OPENAI_KEY = process.env.AZURE_OPENAI_KEY!;
 const AZURE_OPENAI_ENDPOINT = "https://sadan-mcygibeu-eastus2.openai.azure.com/";
