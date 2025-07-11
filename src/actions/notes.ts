@@ -14,6 +14,18 @@ const AZURE_OPENAI_ENDPOINT = "https://sadan-mcygibeu-eastus2.openai.azure.com/"
 const AZURE_DEPLOYMENT_NAME = "gpt-4.1-mini";
 const API_VERSION = "2024-02-15-preview";
 
+interface AzureError {
+  response?: {
+    data?: {
+      error?: {
+        message?: string;
+        code?: string;
+      };
+    };
+  };
+}
+
+
 export const createNoteAction = async (noteId: string) => {
   try {
     const user = await getUser();
@@ -68,6 +80,16 @@ export const deleteNoteAction = async (noteId: string) => {
     return handleError(error);
   }
 }
+
+function isAzureError(error: unknown): error is AzureError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as AzureError).response?.data?.error?.message === "string"
+  );
+}
+
 
 export const askAIAboutNotesAction = async (
   newQuestions: string[],
@@ -142,26 +164,27 @@ export const askAIAboutNotesAction = async (
     );
     completion = response.data;
   } catch (error: unknown) {
-  if (
-    typeof error === "object" &&
-    error !== null &&
-    "response" in error &&
-    typeof (error as any).response?.data?.error?.message === "string" &&
-    (error as any).response?.data?.error?.message?.toLowerCase().includes("insufficient quota") ||
-    (error as any).response?.data?.error?.code === "insufficient_quota"
-  ) {
-    console.error("Azure OpenAI quota exceeded:", (error as any));
-    return "AI service is currently unavailable due to quota limits.";
-  }
+    if (isAzureError(error)) {
+      const message = error.response?.data?.error?.message?.toLowerCase();
+      const code = error.response?.data?.error?.code;
 
-  if (error instanceof Error) {
-    console.error("Azure OpenAI error:", error.message);
-  } else {
-    console.error("Unknown error occurred");
-  }
+      if (
+        message?.includes("insufficient quota") ||
+        code === "insufficient_quota"
+      ) {
+        console.error("Azure OpenAI quota exceeded:", error);
+        return "AI service is currently unavailable due to quota limits.";
+      }
 
-  throw error;
-}
+      console.error("Azure OpenAI error:", error.response?.data);
+    } else if (error instanceof Error) {
+      console.error("Unknown error:", error.message);
+    } else {
+      console.error("Unexpected error:", error);
+    }
+
+    throw error;
+  }
 
   return completion.choices?.[0]?.message?.content || "A problem has occurred";
 };
