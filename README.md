@@ -16,6 +16,7 @@
 - [x] Middleware Setup
 - [x] Deployment
 - [x] Deployment error resolved
+- [x] Added gpt-4o-mini for AI suggestion
 
 
 

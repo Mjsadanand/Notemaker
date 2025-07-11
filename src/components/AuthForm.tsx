@@ -39,12 +39,10 @@ function AuthForm(type: Props) {
             }
 
             if(!errorMessage){
-                toast.success(description);
+                toast.success(description, { duration: 2000 });
                 router.replace("/");
             }else{
-                toast.error(errorMessage, {
-                    description: description,
-                });
+                toast.error(errorMessage);
             }
         });
     }
