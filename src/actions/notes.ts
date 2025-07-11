@@ -141,17 +141,27 @@ export const askAIAboutNotesAction = async (
       }
     );
     completion = response.data;
-  } catch (error: any) {
-    if (
-      error?.response?.data?.error?.message?.toLowerCase().includes("insufficient quota") ||
-      error?.response?.data?.error?.code === "insufficient_quota"
-    ) {
-      console.error("Azure OpenAI quota exceeded:", error);
-      return "AI service is currently unavailable due to quota limits.";
-    }
-    console.error("Azure OpenAI error:", error.response?.data || error.message);
-    throw error;
+  } catch (error: unknown) {
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "response" in error &&
+    typeof (error as any).response?.data?.error?.message === "string" &&
+    (error as any).response?.data?.error?.message?.toLowerCase().includes("insufficient quota") ||
+    (error as any).response?.data?.error?.code === "insufficient_quota"
+  ) {
+    console.error("Azure OpenAI quota exceeded:", (error as any));
+    return "AI service is currently unavailable due to quota limits.";
   }
+
+  if (error instanceof Error) {
+    console.error("Azure OpenAI error:", error.message);
+  } else {
+    console.error("Unknown error occurred");
+  }
+
+  throw error;
+}
 
   return completion.choices?.[0]?.message?.content || "A problem has occurred";
 };
