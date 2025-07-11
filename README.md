@@ -10,10 +10,12 @@
 - [x] Adding basic functionality to the login and signup
 - [x] Sending emails and Confirming them by using SMTP of Supabase
 - [x] Adding the functionality to logout button 
-- [] Prisma SetUp
-- [] Connecting to supabase DB and making interaction with DB
-- [] Adding Core functionality 
-- [] Adding the functionality to logout button 
+- [x] Prisma SetUp
+- [x] Connecting to supabase DB and making interaction with DB
+- [x] Adding Core functionality 
+- [x] Middleware Setup
+- [x] Deployment
+- [x] Deployment error resolved
 
 
 
